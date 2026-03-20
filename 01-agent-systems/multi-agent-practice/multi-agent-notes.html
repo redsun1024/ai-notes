@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>企业级多智能体实践笔记 · 专家修订版</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #18181b;
+  --ink2: #3f3f46;
+  --muted: #71717a;
+  --paper: #fafaf9;
+  --surface: #f4f4f0;
+  --border: #e4e4e0;
+  --red: #dc2626;
+  --red-bg: #fef2f2;
+  --red-border: #fecaca;
+  --amber: #b45309;
+  --amber-bg: #fffbeb;
+  --amber-border: #fde68a;
+  --green: #166534;
+  --green-bg: #f0fdf4;
+  --green-border: #bbf7d0;
+  --blue: #1e40af;
+  --blue-bg: #eff6ff;
+  --blue-border: #bfdbfe;
+  --teal: #0f766e;
+  --teal-bg: #f0fdfa;
+  --teal-border: #99f6e4;
+  --serif: 'Noto Serif SC', serif;
+  --sans: 'Noto Sans SC', sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--sans); background: var(--paper); color: var(--ink); font-size: 15px; line-height: 1.8; }
+
+/* HEADER */
+.header { background: var(--ink); color: #fff; padding: 52px 0 40px; }
+.header-inner { max-width: 860px; margin: 0 auto; padding: 0 36px; }
+.header-eyebrow { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+.eyebrow-tag { background: var(--red); color: #fff; font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; padding: 3px 10px; border-radius: 3px; }
+.eyebrow-note { font-size: 12px; color: rgba(255,255,255,0.45); font-family: var(--mono); }
+.header-title { font-family: var(--serif); font-size: 30px; font-weight: 700; line-height: 1.3; margin-bottom: 10px; }
+.header-sub { font-size: 13px; color: rgba(255,255,255,0.5); margin-bottom: 28px; }
+.header-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+.pill { font-size: 12px; padding: 4px 12px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.7); }
+
+/* CORRECTION BANNER */
+.correction-banner { background: #fef3c7; border-bottom: 2px solid #f59e0b; padding: 14px 0; }
+.correction-inner { max-width: 860px; margin: 0 auto; padding: 0 36px; display: flex; gap: 12px; align-items: flex-start; }
+.correction-label { flex-shrink: 0; background: #f59e0b; color: #fff; font-size: 11px; font-weight: 800; letter-spacing: 1px; padding: 3px 9px; border-radius: 3px; margin-top: 2px; white-space: nowrap; }
+.correction-text { font-size: 13px; color: #78350f; line-height: 1.6; }
+
+/* BODY */
+.body { max-width: 860px; margin: 0 auto; padding: 48px 36px 80px; }
+
+/* TOC */
+.toc { border: 1px solid var(--border); border-left: 3px solid var(--red); background: var(--surface); border-radius: 6px; padding: 22px 26px; margin-bottom: 48px; }
+.toc-title { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+.toc ol { padding-left: 20px; }
+.toc li { font-size: 13.5px; margin-bottom: 5px; color: var(--ink2); }
+.toc a { color: var(--blue); text-decoration: none; }
+.toc a:hover { text-decoration: underline; }
+
+/* SECTION */
+.sec { margin-bottom: 56px; }
+.sec-head { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 22px; padding-bottom: 14px; border-bottom: 1.5px solid var(--ink); }
+.sec-num { flex-shrink: 0; width: 36px; height: 36px; background: var(--ink); color: #fff; font-family: var(--mono); font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: center; border-radius: 4px; }
+.sec-title { font-family: var(--serif); font-size: 21px; font-weight: 700; line-height: 1.3; }
+.sec-desc { font-size: 12.5px; color: var(--muted); margin-top: 3px; }
+
+/* SUB-HEADINGS */
+.sub { font-family: var(--serif); font-size: 15.5px; font-weight: 700; color: var(--ink); border-left: 3px solid var(--amber); padding-left: 10px; margin: 28px 0 14px; }
+
+/* CALLOUTS */
+.box { border-radius: 6px; padding: 16px 20px; margin: 18px 0; display: flex; gap: 12px; }
+.box-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+.box-body { flex: 1; }
+.box-title { font-size: 13.5px; font-weight: 700; margin-bottom: 4px; }
+.box-text { font-size: 13.5px; line-height: 1.7; color: var(--ink2); }
+.box-red    { background: var(--red-bg);    border-left: 3px solid var(--red);   }
+.box-red    .box-title { color: var(--red);   }
+.box-amber  { background: var(--amber-bg);  border-left: 3px solid #f59e0b;      }
+.box-amber  .box-title { color: var(--amber); }
+.box-green  { background: var(--green-bg);  border-left: 3px solid #16a34a;      }
+.box-green  .box-title { color: var(--green);}
+.box-blue   { background: var(--blue-bg);   border-left: 3px solid #3b82f6;      }
+.box-blue   .box-title { color: var(--blue); }
+.box-teal   { background: var(--teal-bg);   border-left: 3px solid #14b8a6;      }
+.box-teal   .box-title { color: var(--teal); }
+
+/* CORRECTION TAG INLINE */
+.fix-tag { display: inline-block; background: #fef3c7; color: #92400e; border: 1px solid #f59e0b; font-size: 10.5px; font-weight: 700; padding: 1px 7px; border-radius: 3px; vertical-align: middle; margin-left: 6px; letter-spacing: 0.5px; }
+.add-tag { display: inline-block; background: #ecfdf5; color: #065f46; border: 1px solid #6ee7b7; font-size: 10.5px; font-weight: 700; padding: 1px 7px; border-radius: 3px; vertical-align: middle; margin-left: 6px; letter-spacing: 0.5px; }
+
+/* CARDS */
+.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 14px; margin: 16px 0; }
+.card { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 18px 20px; }
+.card-tag { font-family: var(--mono); font-size: 10.5px; color: var(--red); font-weight: 700; letter-spacing: 1px; margin-bottom: 7px; }
+.card-title { font-weight: 700; font-size: 14.5px; margin-bottom: 6px; }
+.card-text { font-size: 13px; color: var(--ink2); line-height: 1.65; }
+
+/* TRIGGER CARDS (special) */
+.trig-card { border-top: 3px solid var(--red); }
+.trig-card.green-top { border-top-color: #16a34a; }
+.trig-card.amber-top { border-top-color: #f59e0b; }
+.trig-card.blue-top  { border-top-color: #3b82f6; }
+
+/* STAGES */
+.stage { display: flex; gap: 14px; padding: 14px 16px; border-radius: 6px; margin-bottom: 4px; }
+.stage:hover { background: var(--surface); }
+.stage-dot { flex-shrink: 0; width: 30px; height: 30px; border-radius: 50%; color: #fff; font-weight: 800; font-size: 13px; font-family: var(--mono); display: flex; align-items: center; justify-content: center; margin-top: 1px; }
+.s1 { background: #9ca3af; }
+.s2 { background: #3b82f6; }
+.s3 { background: #14b8a6; }
+.s4 { background: #f59e0b; }
+.s5 { background: var(--red); }
+.stage-label { font-weight: 700; font-size: 14.5px; }
+.stage-sub { font-size: 13px; color: var(--muted); margin-top: 3px; line-height: 1.6; }
+
+/* TABLE */
+.tw { overflow-x: auto; margin: 16px 0; }
+table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+thead tr { background: var(--ink); color: #fff; }
+thead th { padding: 11px 14px; text-align: left; font-weight: 600; font-size: 12.5px; letter-spacing: 0.3px; }
+tbody tr { border-bottom: 1px solid var(--border); }
+tbody tr:nth-child(odd) { background: var(--surface); }
+tbody td { padding: 11px 14px; vertical-align: top; line-height: 1.65; }
+td.col-key { font-weight: 700; color: var(--red); font-family: var(--mono); font-size: 12.5px; white-space: nowrap; }
+td.col-key-blue { font-weight: 700; color: var(--blue); white-space: nowrap; }
+
+/* MATRIX */
+.matrix { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+.mx { border-radius: 8px; padding: 20px 22px; position: relative; }
+.mx-q1 { background: #fef2f2; border: 1.5px solid #fca5a5; }
+.mx-q2 { background: #eff6ff; border: 1.5px solid #93c5fd; }
+.mx-q3 { background: #f0fdf4; border: 1.5px solid #86efac; }
+.mx-q4 { background: #f9fafb; border: 1.5px solid #d1d5db; }
+.mx-flag { position: absolute; top: 12px; right: 14px; font-size: 10px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; opacity: 0.35; }
+.mx-title { font-weight: 800; font-size: 14px; margin-bottom: 8px; }
+.mx-q1 .mx-title { color: var(--red); }
+.mx-q2 .mx-title { color: var(--blue); }
+.mx-q3 .mx-title { color: var(--green); }
+.mx-q4 .mx-title { color: var(--muted); }
+.mx-body { font-size: 13px; color: var(--ink2); line-height: 1.65; }
+.mx-action { font-size: 12px; font-weight: 700; margin-top: 10px; border-top: 1px solid rgba(0,0,0,0.08); padding-top: 8px; }
+.mx-q1 .mx-action { color: var(--red); }
+.mx-q2 .mx-action { color: var(--blue); }
+.mx-q3 .mx-action { color: var(--green); }
+.mx-q4 .mx-action { color: var(--muted); }
+
+/* ARCH CARDS */
+.arch-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 16px 0; }
+.arch { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 18px; }
+.arch-mode { font-family: var(--mono); font-size: 10.5px; color: var(--red); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
+.arch-name { font-weight: 800; font-size: 15px; margin-bottom: 10px; }
+.arch-flow { font-family: var(--mono); font-size: 11px; background: var(--surface); border-radius: 4px; padding: 8px 10px; color: var(--muted); margin-bottom: 10px; line-height: 1.5; }
+.arch-pro { font-size: 12.5px; color: var(--green); line-height: 1.6; }
+.arch-con { font-size: 12.5px; color: #dc2626; line-height: 1.6; margin-top: 3px; }
+.arch-use { font-size: 12px; color: var(--muted); margin-top: 8px; border-top: 1px solid var(--border); padding-top: 7px; }
+
+/* RISK CARDS */
+.risk-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin: 16px 0; }
+.risk { background: var(--red-bg); border: 1px solid var(--red-border); border-radius: 8px; padding: 18px 20px; }
+.risk-title { font-weight: 800; font-size: 14px; color: var(--red); margin-bottom: 8px; }
+.risk-body { font-size: 13px; color: var(--ink2); line-height: 1.65; }
+.risk.new-risk { background: #fdf4ff; border-color: #d8b4fe; }
+.risk.new-risk .risk-title { color: #7c3aed; }
+
+/* GATES */
+.gates { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 16px 0; }
+.gate { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 16px; text-align: center; }
+.gate-num { font-family: var(--mono); font-size: 24px; font-weight: 800; color: var(--red); }
+.gate-title { font-weight: 700; font-size: 13.5px; margin: 4px 0 8px; }
+.gate-body { font-size: 12px; color: var(--muted); line-height: 1.6; text-align: left; }
+
+/* ROADMAP */
+.roadmap { margin: 16px 0; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.rm-item { display: grid; grid-template-columns: 160px 1fr; border-bottom: 1px solid var(--border); }
+.rm-item:last-child { border-bottom: none; }
+.rm-phase { padding: 16px 18px; display: flex; flex-direction: column; justify-content: center; }
+.rm-p1 { background: #1e293b; color: #fff; }
+.rm-p2 { background: #1e40af; color: #fff; }
+.rm-p3 { background: var(--red); color: #fff; }
+.rm-phase-title { font-weight: 700; font-size: 13.5px; }
+.rm-phase-time { font-size: 11px; opacity: 0.6; margin-top: 3px; font-family: var(--mono); }
+.rm-body { padding: 16px 20px; background: var(--paper); }
+.rm-strat { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+.rm-target { font-size: 13px; color: var(--ink2); line-height: 1.65; }
+
+/* FW TABLE badges */
+.bdg { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 700; padding: 2px 9px; border-radius: 12px; white-space: nowrap; }
+.bdg-red   { background: var(--red-bg);   color: var(--red);   border: 1px solid var(--red-border); }
+.bdg-amber { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-border); }
+.bdg-green { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+.bdg-blue  { background: var(--blue-bg);  color: var(--blue);  border: 1px solid var(--blue-border); }
+
+/* ENG ITEMS */
+.eng { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 18px 20px 18px 64px; margin-bottom: 12px; position: relative; }
+.eng-n { position: absolute; left: 18px; top: 18px; font-family: var(--mono); font-size: 20px; font-weight: 800; color: rgba(220,38,38,0.12); }
+.eng-title { font-weight: 700; font-size: 14.5px; margin-bottom: 6px; }
+.eng-body { font-size: 13.5px; color: var(--ink2); line-height: 1.7; }
+
+/* INLINE HIGHLIGHTS */
+.hl-r { background: #fee2e2; color: #b91c1c; font-weight: 700; padding: 1px 5px; border-radius: 3px; font-size: 0.95em; }
+.hl-a { background: #fef3c7; color: #92400e; font-weight: 700; padding: 1px 5px; border-radius: 3px; font-size: 0.95em; }
+.hl-g { background: #dcfce7; color: #166534; font-weight: 700; padding: 1px 5px; border-radius: 3px; font-size: 0.95em; }
+.hl-b { background: #dbeafe; color: #1e40af; font-weight: 700; padding: 1px 5px; border-radius: 3px; font-size: 0.95em; }
+.hl-c { font-family: var(--mono); background: #f4f4f0; color: var(--ink2); padding: 1px 6px; border-radius: 3px; font-size: 0.88em; }
+
+/* INSIGHTS */
+.insights { background: var(--ink); border-radius: 10px; padding: 30px 34px; margin-top: 48px; }
+.insights-title { font-family: var(--serif); font-size: 17px; font-weight: 700; color: #fbbf24; margin-bottom: 20px; }
+.insight { display: flex; gap: 12px; margin-bottom: 16px; }
+.insight-n { flex-shrink: 0; width: 26px; height: 26px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #fbbf24; font-family: var(--mono); }
+.insight-text { font-size: 13.5px; color: rgba(255,255,255,0.82); line-height: 1.7; }
+.insight-text strong { color: #fbbf24; }
+
+p { margin-bottom: 14px; font-size: 14.5px; color: var(--ink2); line-height: 1.8; }
+ul, ol { padding-left: 20px; margin-bottom: 14px; }
+li { margin-bottom: 6px; font-size: 13.5px; color: var(--ink2); line-height: 1.7; }
+.footer { text-align: center; padding: 28px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--border); margin-top: 48px; }
+
+@media (max-width: 640px) {
+  .header-title { font-size: 22px; }
+  .body { padding: 32px 20px 60px; }
+  .matrix, .arch-grid, .risk-grid, .gates { grid-template-columns: 1fr; }
+  .rm-item { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <div class="header-eyebrow">
+      <span class="eyebrow-tag">专家修订版</span>
+      <span class="eyebrow-note">基于行业最佳实践重新整理，标注了原版本中的误区与补充</span>
+    </div>
+    <div class="header-title">企业级多智能体应用实践<br>架构设计 · 场景筛选 · 落地治理</div>
+    <div class="header-sub">系列公开课（二）精编工作参考笔记</div>
+    <div class="header-pills">
+      <span class="pill">技术负责人 / 架构师</span>
+      <span class="pill">数字化转型推进者</span>
+      <span class="pill">多处修正了原版常见误区</span>
+    </div>
+  </div>
+</header>
+
+<div class="correction-banner">
+  <div class="correction-inner">
+    <span class="correction-label">阅读说明</span>
+    <span class="correction-text">
+      本版本基于行业实践对原始笔记进行了修订。<span style="font-weight:700">标注 <span style="background:#f59e0b;color:#fff;padding:0 5px;border-radius:2px;font-size:11px">修正</span> 的内容代表原版本存在偏差或过度简化</span>；标注 <span style="background:#10b981;color:#fff;padding:0 5px;border-radius:2px;font-size:11px">补充</span> 的内容是原版本未涉及但生产实践中至关重要的知识点。框架无法替代业务理解，请结合实际场景判断。
+    </span>
+  </div>
+</div>
+
+<main class="body">
+
+  <!-- TOC -->
+  <nav class="toc">
+    <div class="toc-title">目录</div>
+    <ol>
+      <li><a href="#s1">核心决策：何时引入多智能体？（触发信号 + 演进路径）</a></li>
+      <li><a href="#s2">场景筛选：5M 模型（修正版）与价值矩阵</a></li>
+      <li><a href="#s3">架构设计：三种协作模式 + 四大工程难点</a></li>
+      <li><a href="#s4">企业落地：风险治理（含幻觉传播与成本失控）</a></li>
+      <li><a href="#s5">实施路径：三阶段融合 + 框架选型（更新至2025年）</a></li>
+      <li><a href="#s6">核心洞察与行动建议</a></li>
+    </ol>
+  </nav>
+
+  <!-- SECTION 1 -->
+  <section class="sec" id="s1">
+    <div class="sec-head">
+      <div class="sec-num">01</div>
+      <div>
+        <div class="sec-title">核心决策：何时引入多智能体？</div>
+        <div class="sec-desc">识别真实触发信号，避免架构过度设计</div>
+      </div>
+    </div>
+
+    <div class="box box-red">
+      <div class="box-icon">🚨</div>
+      <div class="box-body">
+        <div class="box-title">最重要的前置判断：先问单 Agent + 工具链能否解决</div>
+        <div class="box-text">多 Agent 会显著增加：Token 消耗（3–10×）、延迟、状态管理复杂度、幻觉传播风险、调试难度。<br>只有当单 Agent + 强工具链明确遇到瓶颈时，才应升级架构。<strong>架构复杂度是成本，不是目标。</strong></div>
+      </div>
+    </div>
+
+    <div class="sub">六大触发信号（满足 2 个以上再考虑多 Agent）</div>
+    <div class="card-grid">
+      <div class="card trig-card">
+        <div class="card-tag">TRIGGER 01</div>
+        <div class="card-title">多专业角色需并行介入</div>
+        <div class="card-text">任务需法务、财务、技术等多方<strong>同时</strong>分析，而非串行传阅。如合同中法律、财务、业务条款需要独立专业审查。</div>
+      </div>
+      <div class="card trig-card green-top">
+        <div class="card-tag">TRIGGER 02</div>
+        <div class="card-title">复杂 DAG 依赖关系</div>
+        <div class="card-text">流程包含明确的串并行 DAG（有向无环图）。如 A 完成后 B/C 并行，再汇总至 D，且 B/C 互相独立。能用流程图精确描述的任务。</div>
+      </div>
+      <div class="card trig-card amber-top">
+        <div class="card-tag">TRIGGER 03 <span class="fix-tag">修正</span></div>
+        <div class="card-title">需要独立的验证角色</div>
+        <div class="card-text">需要"生成后独立验证"机制。注意：<strong>超长上下文问题（原版说法）应先尝试 RAG 或分块摘要</strong>，盲目拆 Agent 会成倍放大 Token 成本，不是首选方案。</div>
+      </div>
+      <div class="card trig-card blue-top">
+        <div class="card-tag">TRIGGER 04</div>
+        <div class="card-title">多轮迭代优化循环</div>
+        <div class="card-text">需要"生成→评审→修改→再评审"循环。独立 Reviewer Agent 的批评质量显著高于同一 Agent 的自我批评（模型更难批判自己的输出）。</div>
+      </div>
+      <div class="card trig-card">
+        <div class="card-tag">TRIGGER 05</div>
+        <div class="card-title">异构系统并发操作</div>
+        <div class="card-text">需同时操作 ERP、CRM、邮件、审批等多个独立系统，且各系统认证方式不同、数据格式不同，需要独立的适配 Agent。</div>
+      </div>
+      <div class="card trig-card green-top">
+        <div class="card-tag">TRIGGER 06 <span class="add-tag">补充</span></div>
+        <div class="card-title">需要高质量的多视角决策</div>
+        <div class="card-text">高风险决策需要多个独立 Agent 提供不同视角，通过投票/综合降低单点偏差（如风险评估、方案选型）。比单 Agent 多次提问效果更好。</div>
+      </div>
+    </div>
+
+    <div class="sub">演进阶段模型（非线性，选择适合的而非最高的阶段）<span class="fix-tag">修正</span></div>
+    <div class="box box-amber">
+      <div class="box-icon">⚠️</div>
+      <div class="box-body">
+        <div class="box-title">原版"5阶段线性演进"存在误导</div>
+        <div class="box-text">实际落地不是线性的。阶段 5（动态路由）不一定优于阶段 4（流水线），两者适用不同场景。企业应根据具体场景选择合适阶段，而非追求"更高阶段"。很多生产系统停在阶段 3 就已获得极高 ROI。</div>
+      </div>
+    </div>
+    <div>
+      <div class="stage"><div class="stage-dot s1">1</div><div><div class="stage-label">单 Agent + 工具链</div><div class="stage-sub">验证 AI 价值的起点。90% 的场景从这里开始，很多不需要走到更高阶段。专注 Prompt 工程 + 工具调用，建立 KPI 基线。</div></div></div>
+      <div class="stage"><div class="stage-dot s2">2</div><div><div class="stage-label">双 Agent（生成 + 验证）</div><div class="stage-sub">ROI 最高的升级点。独立 Critic/Validator Agent 对生成结果做验证。适用于代码生成、内容审核、合规检查。成本增加约 2×，质量提升显著。</div></div></div>
+      <div class="stage"><div class="stage-dot s3">3</div><div><div class="stage-label">多 Agent 流水线（Pipeline）</div><div class="stage-sub">固定流程的串行多角色协作。适合流程清晰、异常分支少的场景。简单可预测，调试成本低，是大多数企业场景的终态。</div></div></div>
+      <div class="stage"><div class="stage-dot s4">4</div><div><div class="stage-label">动态路由系统（Routing）</div><div class="stage-sub">Orchestrator 动态分发混合类型请求。适合请求类型多样的入口（如客服、综合查询）。调度器设计是核心难点，需要单独设计容错机制。</div></div></div>
+      <div class="stage"><div class="stage-dot s5">5</div><div><div class="stage-label">群体协作（Swarm）</div><div class="stage-sub">多 Agent 并行生成+投票综合。适合高质量决策场景（方案评审、风险评估），成本最高（3–10× 单 Agent），仅在质量收益显著时使用。</div></div></div>
+    </div>
+  </section>
+
+  <!-- SECTION 2 -->
+  <section class="sec" id="s2">
+    <div class="sec-head">
+      <div class="sec-num">02</div>
+      <div>
+        <div class="sec-title">场景筛选：5M 模型与价值矩阵</div>
+        <div class="sec-desc">在资源投入前量化评估场景优先级</div>
+      </div>
+    </div>
+
+    <div class="sub">5M 模型（原版 4M 遗漏了关键维度）<span class="fix-tag">修正</span></div>
+    <div class="tw">
+      <table>
+        <thead>
+          <tr><th>维度</th><th>关键问题</th><th>判断标准</th><th>补充说明</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="col-key">Multi-step<br>多步骤</td>
+            <td>任务有几个明确阶段？</td>
+            <td>无法一步完成，有执行序列</td>
+            <td>能画出流程图的任务，步骤之间有明确的输入输出边界</td>
+          </tr>
+          <tr>
+            <td class="col-key">Multi-system<br>多系统</td>
+            <td>需要访问几个系统？</td>
+            <td>需调用多个数据源或外部系统</td>
+            <td>注意区分"多 API 调用"（单 Agent 可处理）与"多系统并发写入"（需多 Agent）</td>
+          </tr>
+          <tr>
+            <td class="col-key">Multi-role<br>多角色</td>
+            <td>人工处理需几个部门？</td>
+            <td>需要不同专业视角独立参与</td>
+            <td>强调"独立"——若是顺序审批，Pipeline 已够用；若需并行独立分析，才考虑多 Agent</td>
+          </tr>
+          <tr>
+            <td class="col-key">Rule-based<br>可规则化</td>
+            <td>新员工能按手册执行吗？</td>
+            <td>有明确的业务规则和判断标准</td>
+            <td>规则模糊的任务先做业务规则梳理，不要让 AI 去猜业务意图</td>
+          </tr>
+          <tr>
+            <td class="col-key" style="color:#7c3aed;">Measurable<br>可度量 <span class="add-tag">补充</span></td>
+            <td>如何判断系统在正常工作？</td>
+            <td>有明确的成功/失败评判标准</td>
+            <td><strong>这是最常被忽略的维度。</strong>没有度量指标，你不知道多 Agent 是否在工作，也无法优化。必须先定义评估指标再上线。</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="box box-teal">
+      <div class="box-icon">💡</div>
+      <div class="box-body">
+        <div class="box-title">5M 评分使用建议</div>
+        <div class="box-text">满足 <strong>4–5 个维度</strong>（必须包含 Measurable）→ 优先推进；满足 <strong>3 个</strong> → 可作为试点但先设计评估体系；满足 <strong>0–2 个</strong> → 用单 Agent 工具链先验证，暂缓多 Agent 投入。</div>
+      </div>
+    </div>
+
+    <div class="sub">高价值场景筛选矩阵（业务价值 × 落地可行性）</div>
+    <div class="matrix">
+      <div class="mx mx-q1"><div class="mx-flag">PRIORITY</div>
+        <div class="mx-title">🚀 优先实施</div>
+        <div class="mx-body">年节省成本 &gt;50万 + 数据就绪 + 技术成熟 + 3个月内可上线<br><br>典型：合同智能审核（2天→2小时）、工单智能处理（一线解决率+30%）</div>
+        <div class="mx-action">→ 快速拿 ROI，打造内部标杆案例</div>
+      </div>
+      <div class="mx mx-q2"><div class="mx-flag">STRATEGIC</div>
+        <div class="mx-title">📋 战略规划</div>
+        <div class="mx-body">战略级需求，但数据质量/技术成熟度/资源存在缺口<br><br>典型：全流程 AI-Native 重构、核心研发效能平台</div>
+        <div class="mx-action">→ 纳入长期规划，先补齐数据治理能力</div>
+      </div>
+      <div class="mx mx-q3"><div class="mx-flag">PILOT</div>
+        <div class="mx-title">🧪 快速试点</div>
+        <div class="mx-body">技术成熟、风险低，但价值有限（&lt;20万/年）<br><br>典型：内部文档 Q&A、会议纪要生成、代码注释自动化</div>
+        <div class="mx-action">→ 验证平台能力，积累团队经验，低风险练手</div>
+      </div>
+      <div class="mx mx-q4"><div class="mx-flag">DEFER</div>
+        <div class="mx-title">⏸ 暂缓</div>
+        <div class="mx-body">价值有限且存在明显能力缺口<br><br>当前阶段不建议投入资源</div>
+        <div class="mx-action">→ 待数据/技术/组织条件成熟后重新评估</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 3 -->
+  <section class="sec" id="s3">
+    <div class="sec-head">
+      <div class="sec-num">03</div>
+      <div>
+        <div class="sec-title">架构设计：协作模式与工程难点</div>
+        <div class="sec-desc">选对模式是成功的一半，解决工程难点是另一半</div>
+      </div>
+    </div>
+
+    <div class="sub">三种协作模式——选错会让项目陷入困境</div>
+    <div class="arch-grid">
+      <div class="arch">
+        <div class="arch-mode">模式 A</div>
+        <div class="arch-name">流水线 Pipeline</div>
+        <div class="arch-flow">请求 → A → B → C → 结果</div>
+        <div class="arch-pro">✓ 简单可预测，调试成本低，Token 消耗可控</div>
+        <div class="arch-con">✗ 灵活性差，异常分支处理能力弱</div>
+        <div class="arch-use">📌 报告生成、固定审批流、合同审核</div>
+      </div>
+      <div class="arch">
+        <div class="arch-mode">模式 B</div>
+        <div class="arch-name">动态路由 Routing</div>
+        <div class="arch-flow">请求 → 调度器 → 专属 Agent → 结果</div>
+        <div class="arch-pro">✓ 灵活，处理多类型混合请求</div>
+        <div class="arch-con">✗ 调度器易成瓶颈；路由决策本身需要高质量的分类模型</div>
+        <div class="arch-use">📌 客服系统、综合查询入口</div>
+      </div>
+      <div class="arch">
+        <div class="arch-mode">模式 C</div>
+        <div class="arch-name">群体协作 Swarm</div>
+        <div class="arch-flow">并行生成 → 投票 / 综合 → 最优解</div>
+        <div class="arch-pro">✓ 决策质量高，减少单点偏差和幻觉</div>
+        <div class="arch-con">✗ 成本是单 Agent 的 N 倍，合成逻辑需精心设计</div>
+        <div class="arch-use">📌 方案评审、高风险判断、医疗/法律辅助</div>
+      </div>
+    </div>
+
+    <div class="box box-blue">
+      <div class="box-icon">🔧</div>
+      <div class="box-body">
+        <div class="box-title">实践：生产系统通常是混合模式</div>
+        <div class="box-text">外层 Routing 处理请求分类 → 内层 Pipeline 执行固定步骤 → 关键高风险节点用 Swarm 投票。根据场景的复杂度和质量要求决定在哪一层升级，而非整体替换。</div>
+      </div>
+    </div>
+
+    <div class="sub">四大工程难点与解决方案</div>
+    <div class="eng">
+      <div class="eng-n">01</div>
+      <div class="eng-title">任务拆解粒度</div>
+      <div class="eng-body">
+        <strong>原则</strong>：一个 Agent = 一个明确的职责边界，输入输出可精确定义和测试。<br>
+        过粗（退化为单 Agent）/ 过细（协调开销 > 业务价值）都是失败。<br>
+        <span class="hl-a">经验值</span>：单 Agent 任务约需 3–7 次 LLM 调用为宜；Agent 的输出必须可以被下游 Agent 消费，而不依赖隐含上下文。
+      </div>
+    </div>
+    <div class="eng">
+      <div class="eng-n">02</div>
+      <div class="eng-title">上下文传递与状态管理</div>
+      <div class="eng-body">
+        <span class="hl-g">推荐方案</span>：结构化中间状态（<span class="hl-c">JSON Schema</span> 定义并校验）+ 共享工作内存（Blackboard 模式）+ 显式交接协议。<br>
+        <strong>避免通过自然语言传递关键状态</strong>——自然语言有歧义，下游 Agent 可能误解。所有关键字段做 Schema 校验，拒绝不合法的上游输出而不是继续传播错误。
+      </div>
+    </div>
+    <div class="eng">
+      <div class="eng-n">03</div>
+      <div class="eng-title">错误传播与容错机制</div>
+      <div class="eng-body">
+        <span class="hl-r">高优先级</span>：上游 Agent 的错误若不拦截，会被下游当作事实继续处理并放大。每个节点必须定义：(1) 什么是合法的输入；(2) 失败时的恢复策略。<br>
+        方案：指数退避重试 + 关键节点 Human-in-the-loop + 降级策略（失败转人工队列，不要静默失败）。
+      </div>
+    </div>
+    <div class="eng">
+      <div class="eng-n">04</div>
+      <div class="eng-title">一致性与幂等性</div>
+      <div class="eng-body">
+        并行 Agent 同时写入同一资源时的竞态问题。<br>
+        <span class="hl-g">实现要点</span>：任务 ID 唯一性 + 分布式锁（Redis RedLock）+ Write-Ahead Log 操作日志。<br>
+        <strong>所有写操作设计为幂等</strong>——相同输入重复执行不产生副作用，这是支持重试策略的基础。
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 4 -->
+  <section class="sec" id="s4">
+    <div class="sec-head">
+      <div class="sec-num">04</div>
+      <div>
+        <div class="sec-title">企业落地：风险治理与四道关</div>
+        <div class="sec-desc">原版三大风险遗漏了两个生产中最高频的问题</div>
+      </div>
+    </div>
+
+    <div class="box box-red">
+      <div class="box-icon">🔴</div>
+      <div class="box-body">
+        <div class="box-title">在写第一行代码之前，必须设计好</div>
+        <div class="box-text">权限体系 + 审计日志 + 可观测性指标 + 成本预算上限。事后补充这四项会导致极大的重构代价，是项目卡在"Demo 到生产"之间的根本原因。</div>
+      </div>
+    </div>
+
+    <div class="sub">五大核心风险与对策（原版三大 + 两个补充）</div>
+    <div class="risk-grid">
+      <div class="risk">
+        <div class="risk-title">⚠️ 人机边界模糊</div>
+        <div class="risk-body">
+          定义明确的"只读"与"可写"权限边界。<br>
+          敏感操作（删除/支付/外部发送）强制二次确认。<br>
+          高风险决策（大额资金、影响大量用户）强制人工确认节点，不可跳过。
+        </div>
+      </div>
+      <div class="risk">
+        <div class="risk-title">⚠️ 权限与审计风险</div>
+        <div class="risk-body">
+          每个 Agent 遵循<strong>最小权限原则</strong>——只授予完成本节点任务所需的最小权限，Agent A 的权限不应传递给 Agent B。<br>
+          所有操作记录到 Append-only 审计日志，支持合规审计和事故回溯。
+        </div>
+      </div>
+      <div class="risk">
+        <div class="risk-title">⚠️ 可解释性缺失</div>
+        <div class="risk-body">
+          Trace ID 贯穿全流程（分布式链路追踪）。<br>
+          每个 Agent 输出决策理由（Reasoning Log），不允许"黑盒"节点。<br>
+          关键节点状态存档，支持事后回溯。可解释性是企业合规的核心要求。
+        </div>
+      </div>
+      <div class="risk new-risk">
+        <div class="risk-title">🆕 幻觉传播风险 <span class="add-tag">补充</span></div>
+        <div class="risk-body">
+          <strong>这是多 Agent 系统最高频的生产事故来源。</strong>单 Agent 幻觉是局部的，而多 Agent 会将上游错误当作事实传递给下游并放大。<br>
+          对策：每个节点对输入做事实校验；关键数据节点引入 Retrieval 接地（RAG）；高价值输出强制 Human Review。
+        </div>
+      </div>
+      <div class="risk new-risk" style="background:#fff7ed;border-color:#fed7aa;">
+        <div class="risk-title" style="color:#c2410c;">🆕 成本失控风险 <span class="add-tag">补充</span></div>
+        <div class="risk-body">
+          <strong>多 Agent 的 Token 消耗是单 Agent 的 3–10×。</strong>很多企业项目在压力测试后因成本过高而叫停。<br>
+          对策：上线前做 Token 消耗模拟测算；设置单任务 Token 上限（硬截断）；引入多模型路由（轻量任务用小模型，关键节点用大模型）；建立成本 KPI 和告警机制。
+        </div>
+      </div>
+      <div class="risk" style="background:#fdf4ff;border-color:#d8b4fe;">
+        <div class="risk-title" style="color:#7c3aed;">⚠️ Prompt 注入攻击 <span class="add-tag">补充</span></div>
+        <div class="risk-body">
+          当某个 Agent 处理用户输入后将结果传给下游时，恶意用户可通过构造输入操控下游 Agent 行为（间接 Prompt 注入）。<br>
+          对策：输入净化和格式校验；用户输入不直接拼接到下游 System Prompt；关键系统设置 Output Guard。
+        </div>
+      </div>
+    </div>
+
+    <div class="sub">从 Demo 到生产的四道关 <span class="fix-tag">修正</span></div>
+    <p style="font-size:13.5px;color:var(--muted)">原版三道关遗漏了"成本控制"，而这恰恰是多 Agent 项目在生产中叫停最高频的原因。</p>
+    <div class="gates">
+      <div class="gate">
+        <div class="gate-num">关1</div>
+        <div class="gate-title">可观测性</div>
+        <div class="gate-body">
+          LLM 层：Token/延迟/成功率<br>
+          Agent 层：任务成功率/重试次数<br>
+          业务层：完成率/满意度<br>
+          三层监控，告警先于上线
+        </div>
+      </div>
+      <div class="gate">
+        <div class="gate-num">关2</div>
+        <div class="gate-title">安全合规</div>
+        <div class="gate-body">
+          多租户数据隔离<br>
+          Prompt 注入防护<br>
+          PII 识别与过滤<br>
+          涉密数据私有化部署
+        </div>
+      </div>
+      <div class="gate">
+        <div class="gate-num">关3</div>
+        <div class="gate-title">成本控制 🆕</div>
+        <div class="gate-body">
+          上线前 Token 消耗模拟<br>
+          单任务 Token 硬上限<br>
+          多模型路由（成本/能力均衡）<br>
+          成本 KPI + 预算告警
+        </div>
+      </div>
+      <div class="gate">
+        <div class="gate-num">关4</div>
+        <div class="gate-title">规模化能力</div>
+        <div class="gate-body">
+          异步任务队列（消峰）<br>
+          K8s 容器化部署<br>
+          健康检查 + 自动重启<br>
+          弹性伸缩能力
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 5 -->
+  <section class="sec" id="s5">
+    <div class="sec-head">
+      <div class="sec-num">05</div>
+      <div>
+        <div class="sec-title">实施路径与框架选型</div>
+        <div class="sec-desc">三阶段融合路径 + 框架对比（更新至 2025 年）</div>
+      </div>
+    </div>
+
+    <div class="sub">三阶段融合路径（渐进式，每阶段验证 ROI 后再推进）</div>
+    <div class="roadmap">
+      <div class="rm-item">
+        <div class="rm-phase rm-p1">
+          <div class="rm-phase-title">阶段一<br>外挂辅助</div>
+          <div class="rm-phase-time">0 – 6 个月</div>
+        </div>
+        <div class="rm-body">
+          <div class="rm-strat">不改造现有系统，Agent 作为外部工具</div>
+          <div class="rm-target">通过 API / RPA 与现有系统交互，不侵入核心业务系统。目标：证明价值，积累高质量数据，建立组织信任，明确度量基线。<br><strong>成功标准</strong>：有可量化的 ROI 数据，团队对 AI 输出质量有信心。</div>
+        </div>
+      </div>
+      <div class="rm-item">
+        <div class="rm-phase rm-p2">
+          <div class="rm-phase-title">阶段二<br>流程嵌入</div>
+          <div class="rm-phase-time">6 – 18 个月</div>
+        </div>
+        <div class="rm-body">
+          <div class="rm-strat">Agent 节点嵌入业务流程，改造部分系统 API</div>
+          <div class="rm-target">将 Agent 作为正式节点嵌入流程，同时保留人工 Fallback 通道。目标：提升效率，替换部分人工节点，完善可观测性和治理体系。<br><strong>成功标准</strong>：降级通道验证可用，成本 / 质量 KPI 稳定达标。</div>
+        </div>
+      </div>
+      <div class="rm-item">
+        <div class="rm-phase rm-p3">
+          <div class="rm-phase-title">阶段三<br>流程重构</div>
+          <div class="rm-phase-time">18 个月 +</div>
+        </div>
+        <div class="rm-body">
+          <div class="rm-strat">AI-Native 重新设计流程，人工专注例外处理</div>
+          <div class="rm-target">以 Agent 协作为中心重新设计流程，人工只介入例外和高价值判断。<strong>注意：很多企业不需要走到这一步。</strong>阶段二的稳定收益比阶段三的激进重构更有价值。</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub">主流框架横向对比（2025 年更新）<span class="fix-tag">修正</span></div>
+    <div class="box box-amber">
+      <div class="box-icon">⚠️</div>
+      <div class="box-body">
+        <div class="box-title">原版框架对比存在过时信息</div>
+        <div class="box-text">CrewAI 生产稳定性在业界存在明显争议，文档和 API 变更频繁，不建议直接用于生产核心链路。Dify 1.x 之后已支持复杂多 Agent 工作流，不能简单归类为"低代码轻量工具"。</div>
+      </div>
+    </div>
+    <div class="tw">
+      <table>
+        <thead>
+          <tr><th>框架</th><th>定位</th><th>生产成熟度</th><th>适合场景</th><th>门槛</th><th>注意事项</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="col-key-blue">LangGraph</td>
+            <td>图状态机编排</td>
+            <td><span class="bdg bdg-green">✓ 生产级</span></td>
+            <td>复杂流程控制，需精细状态管理</td>
+            <td><span class="bdg bdg-red">高</span></td>
+            <td>学习曲线陡峭，但生产稳定性强，LangSmith 配套 Observability 成熟</td>
+          </tr>
+          <tr>
+            <td class="col-key-blue">AutoGen（微软）</td>
+            <td>对话式多 Agent</td>
+            <td><span class="bdg bdg-amber">△ 谨慎用于生产</span></td>
+            <td>研究原型、代码生成协作</td>
+            <td><span class="bdg bdg-amber">中</span></td>
+            <td>AutoGen 0.4+ 架构重构后更稳定，但生产案例相对较少</td>
+          </tr>
+          <tr>
+            <td class="col-key-blue">AgentScope（阿里）</td>
+            <td>多 Agent 协作框架</td>
+            <td><span class="bdg bdg-amber">△ 适合国内环境</span></td>
+            <td>国内模型生态集成，企业研究到生产</td>
+            <td><span class="bdg bdg-amber">中</span></td>
+            <td>国内大模型 API 支持更好，适合在国内云环境落地</td>
+          </tr>
+          <tr>
+            <td class="col-key-blue">CrewAI</td>
+            <td>角色扮演多 Agent</td>
+            <td><span class="bdg bdg-red">✗ 不建议生产核心链路</span></td>
+            <td>快速原型、Demo 演示</td>
+            <td><span class="bdg bdg-green">低</span></td>
+            <td>API 变更频繁、稳定性存疑、社区反馈生产问题较多，仅适合探索验证</td>
+          </tr>
+          <tr>
+            <td class="col-key-blue">Dify</td>
+            <td>可视化 + 工作流引擎</td>
+            <td><span class="bdg bdg-green">✓ 生产级（1.x+）</span></td>
+            <td>业务侧快速落地，中复杂度多 Agent 工作流</td>
+            <td><span class="bdg bdg-green">低-中</span></td>
+            <td>1.x 后已支持复杂 Agent 工作流，不应视为"纯轻量工具"；私有化部署成熟</td>
+          </tr>
+          <tr>
+            <td class="col-key-blue">直接调用 API</td>
+            <td>自建编排层</td>
+            <td><span class="bdg bdg-blue">视实现而定</span></td>
+            <td>高度定制化场景，强治理要求</td>
+            <td><span class="bdg bdg-red">高</span></td>
+            <td>控制力最强，但需自建状态管理、可观测性、容错等全套基础设施</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="box box-green">
+      <div class="box-icon">✅</div>
+      <div class="box-body">
+        <div class="box-title">框架选型决策树</div>
+        <div class="box-text">
+          <strong>探索验证期</strong>：Dify（低代码快速出结果）或直接 API 调用（控制力强）→ 优先验证业务可行性。<br>
+          <strong>生产落地期</strong>：LangGraph（复杂流程精细控制）或 Dify（中复杂度 + 团队技术栈以 Python 为主）→ 根据场景复杂度和团队背景决策。<br>
+          <strong>核心原则</strong>：框架是工具，业务理解是核心竞争力。选择团队最熟悉、社区最活跃、可观测性支持最好的框架，而非最流行的框架。
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- INSIGHTS -->
+  <div class="insights" id="s6">
+    <div class="insights-title">核心洞察与行动建议</div>
+    <div class="insight">
+      <div class="insight-n">①</div>
+      <div class="insight-text"><strong>不要为"多"而"多"</strong>：满足 5M 模型（必须包含 Measurable）才考虑多 Agent。很多项目用单 Agent + 工具链完全够用，过度架构是最常见的失败原因。</div>
+    </div>
+    <div class="insight">
+      <div class="insight-n">②</div>
+      <div class="insight-text"><strong>幻觉传播比单 Agent 更危险</strong>：多 Agent 会让错误在管道中被当作事实传递并放大。每个节点需要输入校验，关键节点需要事实接地（RAG）或 Human Review，不能假设上游输出一定正确。</div>
+    </div>
+    <div class="insight">
+      <div class="insight-n">③</div>
+      <div class="insight-text"><strong>成本是项目存活的关键</strong>：多 Agent 的 Token 消耗是单 Agent 的 3–10×。上线前必须做成本模拟，设置硬上限和告警，引入多模型路由控制成本。很多有价值的项目死在了账单上。</div>
+    </div>
+    <div class="insight">
+      <div class="insight-n">④</div>
+      <div class="insight-text"><strong>治理先行，代码靠后</strong>：权限体系、审计日志、可观测性、成本预算——这四件事必须在第一行代码之前设计完成。事后补救代价极大，通常意味着推倒重来。</div>
+    </div>
+    <div class="insight">
+      <div class="insight-n">⑤</div>
+      <div class="insight-text"><strong>小步快跑，阶段二稳住比冲阶段三更重要</strong>：从外挂辅助起步，用高价值/高可行性场景快速拿到 ROI。很多企业不需要走到 AI-Native 重构，阶段二的稳定收益已经非常有价值。</div>
+    </div>
+    <div class="insight">
+      <div class="insight-n">⑥</div>
+      <div class="insight-text"><strong>数据质量决定系统上限</strong>：多 Agent 会放大好的业务规则，也会放大坏的数据。上线前先做数据治理，明确每个 Agent 输入的数据质量标准。没有高质量数据，再好的架构也是空中楼阁。</div>
+    </div>
+    <div class="insight">
+      <div class="insight-n">⑦</div>
+      <div class="insight-text"><strong>人是系统的一部分，而非系统的对立面</strong>：多 Agent 不是替代人，而是把人从重复劳动中解放，专注于例外处理和高价值判断。Human-in-the-loop 不是权宜之计，是生产级系统的必要组成部分。</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    企业级多智能体应用实践 · 专家修订版工作参考笔记 · 标注内容基于行业最佳实践重新梳理
+  </div>
+</main>
+</body>
+</html>
