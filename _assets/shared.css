@@ -1,0 +1,46 @@
+-n /* ── ai-notes shared styles ──
+   所有笔记页面共用的基础样式变量
+   引用方式：<link rel="stylesheet" href="../../_assets/shared.css">
+*/
+
+:root {
+  --ink:    #18181b;
+  --ink2:   #3f3f46;
+  --muted:  #71717a;
+  --bg:     #fafaf9;
+  --surf:   #f4f4f0;
+  --border: #e4e4e0;
+
+  --red:   #dc2626; --red-bg: #fef2f2; --red-bdr: #fecaca;
+  --amber: #b45309; --amb-bg: #fffbeb; --amb-bdr: #fde68a;
+  --green: #166534; --grn-bg: #f0fdf4; --grn-bdr: #bbf7d0;
+  --blue:  #1e40af; --blu-bg: #eff6ff; --blu-bdr: #bfdbfe;
+  --teal:  #0f766e; --tel-bg: #f0fdfa; --tel-bdr: #99f6e4;
+
+  --serif: 'Noto Serif SC', serif;
+  --sans:  'Noto Sans SC', sans-serif;
+  --mono:  'JetBrains Mono', monospace;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--blue); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+p { margin-bottom: 14px; color: var(--ink2); line-height: 1.8; }
+ul, ol { padding-left: 20px; margin-bottom: 14px; }
+li { margin-bottom: 6px; color: var(--ink2); line-height: 1.7; }
+
